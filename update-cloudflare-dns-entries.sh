@@ -5,9 +5,11 @@
 IPV4ADDR="$(curl -s https://api.ipify.org/)"
 IPV6ADDR="$(curl -s https://api6.ipify.org/)"
 
-APITOKEN="$(cat ~/cfdns/cloudflare-api-token.txt)"
+WORKPATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+APITOKEN="$(cat ${WORKPATH}/cloudflare-api-token.txt)"
 if [ -z "${APITOKEN}" ]; then
-  echo "API token not found. Please create a file at ~/cfdns/cloudflare-api-token.txt with your Cloudflare API token."
+  echo "API token not found. Please create a file at ${WORKPATH}/cloudflare-api-token.txt with your Cloudflare API token."
   exit 1
 fi
 
@@ -51,4 +53,4 @@ while read DOMAINNAME RECORDTYPE TTL PROXIED ZONEID RECORDID; do
 
         printf "\n"
 
-done < ~/cfdns/cloudflare-dns-entries.txt
+done < ${WORKPATH}/cloudflare-dns-entries.txt
