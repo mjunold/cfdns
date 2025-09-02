@@ -15,18 +15,28 @@ fi
 
 while read DOMAINNAME RECORDTYPE TTL PROXIED ZONEID RECORDID; do
 
-        CURRSETIPV4ADDR="$(dig +short ${DOMAINNAME} A | tail -n1)"
-        CURRSETIPV6ADDR="$(dig +short ${DOMAINNAME} AAAA | tail -n1)"
+        CFIP=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONEID/dns_records/$RECORDID" \
+          -H "Authorization: Bearer $APITOKEN" \
+          -H "Content-Type: application/json" \
+          | jq -er '.result.content') || {
+            echo "❌ Failed to get IP address from Cloudflare API."
+            exit 1
+        }
+
+        if [[ -z "$CFIP" ]]; then
+            echo "❌ IP address is empty. Something went wrong."
+            exit 1
+        fi
+
+        echo "Currently set IP: $CFIP"
 
         if [ "${RECORDTYPE}" == "A" ]; then
           IP=${IPV4ADDR}
-          CURRSETIP=${CURRSETIPV4ADDR}
         elif [ "${RECORDTYPE}" == "AAAA" ]; then
           IP=${IPV6ADDR}
-          CURRSETIP=${CURRSETIPV6ADDR}
         fi
 
-        if [ ${IP} == ${CURRSETIP} ]; then
+        if [ ${IP} == ${CFIP} ]; then
           printf "No update needed for ${DOMAINNAME} (${RECORDTYPE})"
           printf "\n"
           continue
