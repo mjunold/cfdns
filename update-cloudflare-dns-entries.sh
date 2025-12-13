@@ -42,7 +42,7 @@ while read DOMAINNAME RECORDTYPE TTL PROXIED ZONEID RECORDID; do
           continue
         fi
 
-        printf "Updating ${DOMAINNAME} (${RECORDTYPE}) from ${CURRSETIP} to ${IP}"
+        printf "Updating ${DOMAINNAME} (${RECORDTYPE}) from ${CFIP} to ${IP}"
 
         # Update the DNS record using Cloudflare API
         curl -s --request PUT \
