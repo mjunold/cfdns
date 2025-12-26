@@ -13,6 +13,28 @@ if [ -z "${APITOKEN}" ]; then
   exit 1
 fi
 
+# Default: do not force updates when IPs match
+FORCE=false
+
+# Parse command-line options
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
+    --force|-f)
+      FORCE=true
+      shift
+      ;;
+    --help|-h)
+      echo "Usage: $0 [--force]"
+      echo "  --force, -f   Force update even if IP unchanged"
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1"
+      exit 1
+      ;;
+  esac
+done
+
 while read DOMAINNAME RECORDTYPE TTL PROXIED ZONEID RECORDID; do
 
         CFIP=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONEID/dns_records/$RECORDID" \
@@ -36,7 +58,7 @@ while read DOMAINNAME RECORDTYPE TTL PROXIED ZONEID RECORDID; do
           IP=${IPV6ADDR}
         fi
 
-        if [ ${IP} == ${CFIP} ]; then
+        if [ "${FORCE}" != "true" ] && [ "${IP}" == "${CFIP}" ]; then
           printf "No update needed for ${DOMAINNAME} (${RECORDTYPE})"
           printf "\n"
           continue
