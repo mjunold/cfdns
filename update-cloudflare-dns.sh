@@ -85,4 +85,4 @@ while read DOMAINNAME RECORDTYPE TTL PROXIED ZONEID RECORDID; do
 
         printf "\n"
 
-done < ${WORKPATH}/cloudflare-dns-entries.txt
+done < ${WORKPATH}/cloudflare-dns-records.txt
